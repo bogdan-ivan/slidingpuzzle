@@ -7,6 +7,15 @@
 #include <set>
 #include <queue>
 #include <stack>
+#include <unordered_map>
+#include <chrono>
+
+
+//4
+//7 2 1 4
+//0 13 3 9
+//12 10 5 8
+//14 6 11 15
 
 /*
 4
@@ -20,6 +29,30 @@
 #define jos 2
 #define stanga 4
 #define dreapta 6
+
+
+struct Timer
+{
+	std::chrono::time_point<std::chrono::steady_clock> start, end;
+	std::chrono::duration<float> duration;
+
+	Timer()
+	{
+		start = std::chrono::high_resolution_clock::now();
+	}
+
+	~Timer()
+	{
+		end = std::chrono::high_resolution_clock::now();
+		duration = end - start;
+
+		float s = duration.count();
+		float ms = duration.count() * 1000.0f;
+		std::cout << "Timer : " << s << " s" << std::endl;
+		std::cout << "Timer : " << ms << " ms" << std::endl;
+	}
+};
+
 
 std::fstream file("puzzle.txt");
 
@@ -317,7 +350,7 @@ void printSet(std::set<std::string> set)
 	std::cout << std::endl;
 }
 
-bool findSet(std::set<std::string> set, std::string hash)
+bool findSet(std::set<std::string> set, const std::string &hash)
 {
 	return set.find(hash) != set.end();
 }
@@ -565,6 +598,7 @@ bool FindSolution(int** stare_initiala, std::set<std::string> &closed, priority_
 	int noduri_expandate = 0;
 	int noduri_vizitate = 0;
 	int echo = 0;
+	Timer timer;
 
 	while (1)
 	{
@@ -573,8 +607,8 @@ bool FindSolution(int** stare_initiala, std::set<std::string> &closed, priority_
 			return false;
 		}
 
-		echo++;
-		std::cout << "WORKING" << echo << std::endl;
+		//echo++;
+		//std::cout << "WORKING" << echo << std::endl;
 		node* testing = fringe.top();
 		noduri_vizitate++;
 
@@ -590,14 +624,14 @@ bool FindSolution(int** stare_initiala, std::set<std::string> &closed, priority_
 		else
 		{
 			fringe.pop();
-			if (findSet(closed, hash(testing->stare, marime)) == false)
+			std::string hashid = hash(testing->stare, marime);
+			if (findSet(closed, hashid) == false)
 			{
-				closed.insert(hash(testing->stare, marime));
+				closed.insert(hashid);
 				noduri_expandate += insertAllSuccesors(testing, marime, stare_finala, fringe);
 			}
 		}
 	}
-
 }
 
 int prompt()
@@ -613,7 +647,7 @@ int prompt()
 	return opt;
 }
 
-void keyboardread(int** stare_initiala, int marime)
+void keyboardRead(int** stare_initiala, int marime)
 {
 	std::cout << "Introduceti configuratia puzzle-ului :" << std::endl;
 	for (int i = 0; i < marime; i++)
@@ -647,7 +681,7 @@ void main()
 		kread(marime);
 		stare_initiala = allocSquareMatrix(marime);
 		stare_finala = allocSquareMatrix(marime);
-		keyboardread(stare_initiala, marime);
+		keyboardRead(stare_initiala, marime);
 	}
 	else
 	{
