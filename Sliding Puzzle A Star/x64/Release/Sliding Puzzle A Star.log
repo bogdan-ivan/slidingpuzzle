@@ -1,0 +1,9 @@
+﻿  Source.cpp
+Source.cpp(186): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Generating code
+  2 of 738 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    10 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Release\Sliding Puzzle A Star.exe
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Release\Sliding Puzzle A Star.pdb (Full PDB)

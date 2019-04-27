@@ -1,0 +1,4 @@
+﻿  Source.cpp
+c:\facultate\semestrul 2\modern c++ programs\sliding puzzle a star\source.cpp(186): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Debug\Sliding Puzzle A Star.exe
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Debug\Sliding Puzzle A Star.pdb (Full PDB)
