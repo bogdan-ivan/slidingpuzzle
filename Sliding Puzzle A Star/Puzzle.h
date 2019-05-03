@@ -34,7 +34,7 @@ struct Timer
 #define stanga 4
 #define dreapta 6
 
-std::fstream file("puzzle.txt");
+//std::fstream file("puzzle.txt");
 
 struct blank
 {
@@ -84,22 +84,31 @@ public:
 	Puzzle(Puzzle&& other) = delete;
 	Puzzle operator=(Puzzle&& other) = delete;
 	~Puzzle();
-	bool validare_puzzle(int** stare_initiala, int marime, int** stare_finala);
-	bool readFromFile();
+	bool readFromFile(const char* fileName);
 	bool readFromKeyboard();
-	bool FindSolution(int** stare_initiala, std::set<std::string> &closed, priority_fringe &fringe, int marime, int** stare_finala);
+	bool findSolution(int** stare_initiala, std::set<std::string> &closed, priority_fringe &fringe, int marime, int** stare_finala);
+	void current();
 private:
+
 	int m_marime;
 	int** m_stare_initiala;
 	int** m_stare_finala;
-	std::set<std::string> closed;
-	priority_fringe pfringe;
+	bool m_valid;
+
+	std::fstream m_file;
+
+	std::set<std::string> m_closed;
+	priority_fringe m_fringe;
+
 	int** allocSquareMatrix(int size);
 	void deleteMatrix(int** matrix, int row);
+
 	node* newNode();
 	node* newNode(node* parent);
 	node* initialNode(int** stare_initiala, int marime, int** stare_finala);
-	void getTarget(int** stare_finala, int marime);
+
+	bool validate();
+	void getTarget();
 	int calc_fitness(int** stare_initiala, int** stare_finala, int marime);
 	std::string& hash(int** matrix, int n);
 	blank& findBlank(int** matrix, int marime);

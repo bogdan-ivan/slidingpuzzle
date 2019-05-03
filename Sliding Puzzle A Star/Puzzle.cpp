@@ -3,7 +3,7 @@
 static constexpr int unitialized = -1;
 
 Puzzle::Puzzle()
-	:m_marime(unitialized), m_stare_initiala(nullptr), m_stare_finala(nullptr)
+	:m_marime(unitialized), m_stare_initiala(nullptr), m_stare_finala(nullptr), m_valid(false)
 {
 
 }
@@ -18,44 +18,45 @@ Puzzle::~Puzzle()
 	{
 		deleteMatrix(m_stare_finala, m_marime);
 	}
+	m_file.close();
 }
 
-bool Puzzle::validare_puzzle(int ** stare_initiala, int marime, int ** stare_finala)
+bool Puzzle::validate()
 {
 	std::set<int> validating;
-	blank blank = findBlank(stare_initiala, marime);
-	int arraysize = marime*marime;
-	int* marray = matrixToArray(stare_initiala, marime);
+	blank blank = findBlank(m_stare_initiala, m_marime);
+	int arraysize = m_marime*m_marime;
+	int* marray = matrixToArray(m_stare_initiala, m_marime);
 	int inversiuni = 0;
 	int width = sqrt(arraysize);
 	int corr = 0;
 
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
-			if (stare_initiala[i][j] == stare_finala[i][j])
+			if (m_stare_initiala[i][j] == m_stare_finala[i][j])
 			{
 				corr++;
 			}
 		}
 	}
 
-	if (corr == marime*marime)
+	if (corr == m_marime*m_marime)
 	{
 		std::cout << "STAREA INITIALA ESTE STAREA FINALA !!!" << std::endl;
 		return true;
 	}
 
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
-			validating.insert(stare_initiala[i][j]);
+			validating.insert(m_stare_initiala[i][j]);
 		}
 	}
 
-	if (validating.size() != marime*marime)
+	if (validating.size() != m_marime*m_marime)
 	{
 		std::cout << "NUMERELE DIN PUZZLE SE REPETA !!!" << std::endl;
 		return false;
@@ -88,18 +89,60 @@ bool Puzzle::validare_puzzle(int ** stare_initiala, int marime, int ** stare_fin
 	return false;
 }
 
-bool Puzzle::readFromFile()
+bool Puzzle::readFromFile(const char* fileName)
 {
-	return false;
+
+	m_file.open(fileName);
+	if (!m_file)
+		return false;
+	m_file >> m_marime;
+	if (m_marime < 1)
+		return false;
+	m_stare_initiala = allocSquareMatrix(m_marime);
+	m_stare_finala = allocSquareMatrix(m_marime);
+
+	for (int i = 0; i < m_marime; i++)
+	{
+		for (int j = 0; j < m_marime; j++)
+		{
+			m_file >> m_stare_initiala[i][j];
+		}
+	}
+
+	getTarget();
+	m_valid = validate();
+
+	return true;
 }
 
 bool Puzzle::readFromKeyboard()
 {
+	while (m_marime < 1)
+	{
+		std::cout << "Care este marimea puzzle-ului ?" << std::endl;
+		std::cin >> m_marime;
+	}
+
+	std::cout << "Introduceti configuratia puzzle-ului :" << std::endl;
+	for (int i = 0; i < m_marime; i++)
+	{
+		for (int j = 0; j < m_marime; j++)
+		{
+			std::cin >> m_stare_initiala[i][j];
+		}
+	}
+	
+	getTarget();
+	m_valid = validate();
+	
 	return false;
 }
 
-bool Puzzle::FindSolution(int ** stare_initiala, std::set<std::string>& closed, priority_fringe & fringe, int marime, int ** stare_finala)
+bool Puzzle::findSolution(int ** stare_initiala, std::set<std::string>& closed, priority_fringe & fringe, int marime, int ** stare_finala)
 {
+	if (!m_valid)
+		return false;
+
 	fringe.push(initialNode(stare_initiala, marime, stare_finala));
 	int noduri_expandate = 0;
 	int noduri_vizitate = 0;
@@ -134,6 +177,18 @@ bool Puzzle::FindSolution(int ** stare_initiala, std::set<std::string>& closed, 
 				noduri_expandate += insertAllSuccesors(testing, marime, stare_finala, fringe);
 			}
 		}
+	}
+}
+
+void Puzzle::current()
+{
+	for (int i = 0; i < m_marime; i++)
+	{
+		for (int j = 0; j < m_marime; j++)
+		{
+			std::cout << m_stare_initiala[i][j] << " ";
+		}
+		std::cout << std::endl;
 	}
 }
 
@@ -183,18 +238,18 @@ node * Puzzle::initialNode(int ** stare_initiala, int marime, int ** stare_final
 	return node;
 }
 
-void Puzzle::getTarget(int ** stare_finala, int marime)
+void Puzzle::getTarget()
 {
 	int index = 1;
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
-			stare_finala[i][j] = index;
+			m_stare_finala[i][j] = index;
 			index++;
 		}
 	}
-	stare_finala[marime - 1][marime - 1] = 0;
+	m_stare_finala[m_marime - 1][m_marime - 1] = 0;
 }
 
 int Puzzle::calc_fitness(int ** stare_initiala, int ** stare_finala, int marime)

@@ -1,4 +1,9 @@
-﻿  Source.cpp
-c:\facultate\semestrul 2\modern c++ programs\sliding puzzle a star\source.cpp(186): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Debug\Sliding Puzzle A Star.exe
-  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\x64\Debug\Sliding Puzzle A Star.pdb (Full PDB)
+﻿  main.cpp
+  Puzzle.cpp
+c:\facultate\semestrul 2\modern c++ programs\sliding puzzle\sliding puzzle a star\puzzle.cpp(31): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
+c:\facultate\semestrul 2\modern c++ programs\sliding puzzle\sliding puzzle a star\puzzle.cpp(296): warning C4172: returning address of local variable or temporary: blank
+c:\facultate\semestrul 2\modern c++ programs\sliding puzzle\sliding puzzle a star\puzzle.cpp(279): warning C4172: returning address of local variable or temporary: hash
+c:\facultate\semestrul 2\modern c++ programs\sliding puzzle\sliding puzzle a star\puzzle.cpp(313): warning C4172: returning address of local variable or temporary: coordonate
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\Sliding Puzzle\x64\Debug\Sliding Puzzle A Star.exe
+  Sliding Puzzle A Star.vcxproj -> C:\FACULTATE\Semestrul 2\Modern C++ Programs\Sliding Puzzle\x64\Debug\Sliding Puzzle A Star.pdb (Full PDB)
