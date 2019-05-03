@@ -86,8 +86,8 @@ public:
 	~Puzzle();
 	bool readFromFile(const char* fileName);
 	bool readFromKeyboard();
-	bool findSolution(int** stare_initiala, std::set<std::string> &closed, priority_fringe &fringe, int marime, int** stare_finala);
-	void current();
+	bool findSolution();
+	void current() const noexcept;
 private:
 
 	int m_marime;
@@ -105,26 +105,26 @@ private:
 
 	node* newNode();
 	node* newNode(node* parent);
-	node* initialNode(int** stare_initiala, int marime, int** stare_finala);
+	node* initialNode();
 
 	bool validate();
 	void getTarget();
-	int calc_fitness(int** stare_initiala, int** stare_finala, int marime);
-	std::string& hash(int** matrix, int n);
-	blank& findBlank(int** matrix, int marime);
-	point& getPoint(int** matrix, int marime, int element);
+	int calc_fitness(int** stare_initiala, int** stare_finala);
+	std::string hash(int** matrix);
+	blank& findBlank(int** matrix);
+	point& getPoint(int** matrix, int element);
 	void printSquareMatrix(int** matrix, int n) const noexcept;
 	void printArray(int* matrix, int n) const noexcept;
-	int* matrixToArray(int** matrix, int n);
+	int* matrixToArray(int** matrix);
 	void insertQ(int arr[], int n, std::queue<int> &actions);
 	expandInstructions getInstructions(node* parent, int marime);
-	void printSet(std::set<std::string> set);
-	bool findSet(std::set<std::string> set, const std::string &hash);
-	bool compareTarget(node* node, int** stare_finala, int marime);
-	void copyMatrix(int** firstMatrix, int** secondMatrix, int marime);
-	int** result(node* parent, int action, int marime);
+	void printSet() const noexcept;
+	bool findSet(const std::string &hash);
+	bool compareTarget(node* node);
+	void copyMatrix(int** firstMatrix, int** secondMatrix);
+	int** result(node* parent, int action);
 	node** expand(node* parent, int marime, int** stare_finala, int &cn);
-	int insertAllSuccesors(node* parent, int marime, int** stare_finala, priority_fringe &fringe);
+	int insertAllSuccesors(node* parent, int** stare_finala, priority_fringe &fringe);
 	void solution(node* sol);
 };
 
