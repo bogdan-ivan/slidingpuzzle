@@ -24,9 +24,9 @@ Puzzle::~Puzzle()
 bool Puzzle::validate()
 {
 	std::set<int> validating;
-	blank blank = findBlank(m_stare_initiala, m_marime);
+	blank blank = findBlank(m_stare_initiala);
 	int arraysize = m_marime*m_marime;
-	int* marray = matrixToArray(m_stare_initiala, m_marime);
+	int* marray = matrixToArray(m_stare_initiala);
 	int inversiuni = 0;
 	int width = sqrt(arraysize);
 	int corr = 0;
@@ -138,12 +138,12 @@ bool Puzzle::readFromKeyboard()
 	return false;
 }
 
-bool Puzzle::findSolution(int ** stare_initiala, std::set<std::string>& closed, priority_fringe & fringe, int marime, int ** stare_finala)
+bool Puzzle::findSolution()
 {
 	if (!m_valid)
 		return false;
 
-	fringe.push(initialNode(stare_initiala, marime, stare_finala));
+	m_fringe.push(initialNode());
 	int noduri_expandate = 0;
 	int noduri_vizitate = 0;
 	int echo = 0;
@@ -151,15 +151,15 @@ bool Puzzle::findSolution(int ** stare_initiala, std::set<std::string>& closed, 
 
 	while (1)
 	{
-		if (fringe.empty() == true)
+		if (m_fringe.empty() == true)
 		{
 			return false;
 		}
 
-		node* testing = fringe.top();
+		node* testing = m_fringe.top();
 		noduri_vizitate++;
 
-		if (compareTarget(testing, stare_finala, marime) == true)
+		if (compareTarget(testing) == true)
 		{
 
 			solution(testing);
@@ -169,18 +169,18 @@ bool Puzzle::findSolution(int ** stare_initiala, std::set<std::string>& closed, 
 		}
 		else
 		{
-			fringe.pop();
-			std::string hashid = hash(testing->stare, marime);
-			if (findSet(closed, hashid) == false)
+			m_fringe.pop();
+			std::string hashid(std::move(hash(testing->stare)));
+			if (findSet(hashid) == false)
 			{
-				closed.insert(hashid);
-				noduri_expandate += insertAllSuccesors(testing, marime, stare_finala, fringe);
+				m_closed.insert(hashid);
+				noduri_expandate += insertAllSuccesors(testing, m_stare_finala, m_fringe);
 			}
 		}
 	}
 }
 
-void Puzzle::current()
+void Puzzle::current() const noexcept
 {
 	for (int i = 0; i < m_marime; i++)
 	{
@@ -225,16 +225,16 @@ node * Puzzle::newNode(node * parent)
 	return node;
 }
 
-node * Puzzle::initialNode(int ** stare_initiala, int marime, int ** stare_finala)
+node * Puzzle::initialNode()
 {
 	node* node = new struct node;
-	node->stare = stare_initiala;
+	node->stare = m_stare_initiala;
 	node->parinte = nullptr;
 	node->actiune = 5;
 	node->cost = 0;
 	node->adancime = 0;
-	node->pozitia_golului = findBlank(node->stare, marime);
-	node->fitness = calc_fitness(stare_initiala, stare_finala, marime) + node->adancime;
+	node->pozitia_golului = findBlank(node->stare);
+	node->fitness = calc_fitness(m_stare_initiala, m_stare_finala) + node->adancime;
 	return node;
 }
 
@@ -252,26 +252,26 @@ void Puzzle::getTarget()
 	m_stare_finala[m_marime - 1][m_marime - 1] = 0;
 }
 
-int Puzzle::calc_fitness(int ** stare_initiala, int ** stare_finala, int marime)
+int Puzzle::calc_fitness(int ** stare_initiala, int ** stare_finala)
 {
 	int sumaDistantelor = 0;
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
-			point trgt = getPoint(stare_finala, marime, stare_initiala[i][j]);
+			point trgt = getPoint(stare_finala, stare_initiala[i][j]);
 			sumaDistantelor += abs(i - trgt.row) + abs(j - trgt.col);
 		}
 	}
 	return sumaDistantelor;
 }
 
-std::string & Puzzle::hash(int ** matrix, int n)
+std::string Puzzle::hash(int ** matrix)
 {
 	std::string hash;
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
 			hash += std::to_string(matrix[i][j]);
 		}
@@ -279,12 +279,12 @@ std::string & Puzzle::hash(int ** matrix, int n)
 	return hash;
 }
 
-blank& Puzzle::findBlank(int ** matrix, int marime)
+blank& Puzzle::findBlank(int ** matrix)
 {
 	blank blank;
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
 			if (matrix[i][j] == 0)
 			{
@@ -296,12 +296,12 @@ blank& Puzzle::findBlank(int ** matrix, int marime)
 	return blank;
 }
 
-point & Puzzle::getPoint(int ** matrix, int marime, int element)
+point & Puzzle::getPoint(int ** matrix, int element)
 {
 	point coordonate;
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
 			if (matrix[i][j] == element)
 			{
@@ -335,14 +335,14 @@ void Puzzle::printArray(int * matrix, int n) const noexcept
 	std::cout << std::endl;
 }
 
-int * Puzzle::matrixToArray(int ** matrix, int n)
+int * Puzzle::matrixToArray(int ** matrix)
 {
-	int arraysize = n*n;
+	int arraysize = m_marime*m_marime;
 	int* array = new int[arraysize];
 	int index = 0;
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < n; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
 			array[index] = matrix[i][j];
 			index++;
@@ -425,30 +425,29 @@ expandInstructions Puzzle::getInstructions(node * parent, int marime)
 	return instructions;
 }
 
-void Puzzle::printSet(std::set<std::string> set)
+void Puzzle::printSet() const noexcept
 {
-	std::set<std::string>::iterator itr;
 	std::cout << "\nThe set closed is : ";
-	for (itr = set.begin(); itr != set.end(); itr++)
+	for (auto itr = m_closed.begin(); itr != m_closed.end(); itr++)
 	{
 		std::cout << *itr << " ";
 	}
 	std::cout << std::endl;
 }
 
-bool Puzzle::findSet(std::set<std::string> set, const std::string & hash)
+bool Puzzle::findSet(const std::string & hash)
 {
-	return set.find(hash) != set.end();
+	return m_closed.find(hash) != m_closed.end();
 }
 
-bool Puzzle::compareTarget(node * node, int ** stare_finala, int marime)
+bool Puzzle::compareTarget(node * node)
 {
 	int** matrix = node->stare;
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
-			if (matrix[i][j] != stare_finala[i][j])
+			if (matrix[i][j] != m_stare_finala[i][j])
 			{
 				return false;
 			}
@@ -457,21 +456,21 @@ bool Puzzle::compareTarget(node * node, int ** stare_finala, int marime)
 	return true;
 }
 
-void Puzzle::copyMatrix(int ** firstMatrix, int ** secondMatrix, int marime)
+void Puzzle::copyMatrix(int ** firstMatrix, int ** secondMatrix)
 {
-	for (int i = 0; i < marime; i++)
+	for (int i = 0; i < m_marime; i++)
 	{
-		for (int j = 0; j < marime; j++)
+		for (int j = 0; j < m_marime; j++)
 		{
 			firstMatrix[i][j] = secondMatrix[i][j];
 		}
 	}
 }
 
-int ** Puzzle::result(node * parent, int action, int marime)
+int ** Puzzle::result(node * parent, int action)
 {
-	int** resultm = allocSquareMatrix(marime);
-	copyMatrix(resultm, parent->stare, marime);
+	int** resultm = allocSquareMatrix(m_marime);
+	copyMatrix(resultm, parent->stare);
 	blank blank = parent->pozitia_golului;
 	int i = blank.row;
 	int j = blank.col;
@@ -518,22 +517,22 @@ node ** Puzzle::expand(node * parent, int marime, int ** stare_finala, int & cn)
 	{
 		node* child = newNode(parent);
 		child->actiune = actions.front();
-		child->stare = result(parent, child->actiune, marime);
+		child->stare = result(parent, child->actiune);
 		actions.pop();
 		child->adancime = parent->adancime + 1;
 		child->cost = parent->cost + 1;
-		child->fitness = calc_fitness(child->stare, stare_finala, marime) + child->adancime;
-		child->pozitia_golului = findBlank(child->stare, marime);
+		child->fitness = calc_fitness(child->stare, stare_finala) + child->adancime;
+		child->pozitia_golului = findBlank(child->stare);
 		succesors[i] = child;
 	}
 	cn = children_number;
 	return succesors;
 }
 
-int Puzzle::insertAllSuccesors(node * parent, int marime, int ** stare_finala, priority_fringe & fringe)
+int Puzzle::insertAllSuccesors(node * parent, int ** stare_finala, priority_fringe & fringe)
 {
 	int cn = 0;
-	node** succ = expand(parent, marime, stare_finala, cn);
+	node** succ = expand(parent, m_marime, stare_finala, cn);
 	for (int i = 0; i < cn; i++)
 	{
 		fringe.push(succ[i]);

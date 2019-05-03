@@ -72,6 +72,7 @@ void main()
 
 	myPuzzle.readFromFile("puzzle.txt");
 	myPuzzle.current();
+	myPuzzle.findSolution();
 	
 
 
